@@ -25,8 +25,15 @@ app.get("/users/:id", async (req, res) => {
 
 app.post("/users", async (req, res) => {
   try {
-    const user = await User.create(req.body);
-    res.status(200).json(user);
+    const { email } = req.body;
+    const exist = await User.findOne({ email });
+    if (exist) {
+      res.status(409).json({ message: "user already existe" });
+      return;
+    } else {
+      const user = await User.create(req.body);
+      res.status(200).json(user);
+    }
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ message: error.message });
@@ -59,7 +66,6 @@ app.delete("/users/:id", async (req, res) => {
         .json({ message: `cannot find and delete any person with ID ${id}` });
     }
     res.send("utilisateur supreimer avec succè");
-    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
